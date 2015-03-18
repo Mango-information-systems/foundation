@@ -53,11 +53,11 @@ module.exports = function(grunt) {
         options: {
           loadPath: [__dirname + '/scss'],
           bundleExec: true
+          , style: 'compressed'
         },
         files: {
           'dist/assets/css/foundation.css': '<%= foundation.scss %>',
           'dist/assets/css/normalize.css': 'scss/normalize.scss',
-          'dist/docs/assets/css/docs.css': 'doc/assets/scss/docs.scss'
         }
       }
     },
@@ -70,8 +70,6 @@ module.exports = function(grunt) {
           'dist/assets/js/':'dist/assets/js/*js',
           'dist/assets/js/foundation/':'dist/assets/js/foundation/*js',
           'dist/assets/scss/foundation/components/':'dist/assets/scss/foundation/components/*.scss',
-          'dist/docs/assets/css/':'dist/docs/assets/css/*.css',
-          'dist/docs/assets/js/':'dist/docs/assets/js/*.js'
         },
         options: {
           replacements: [
@@ -96,8 +94,6 @@ module.exports = function(grunt) {
       dist: {
         files: {
           'dist/assets/js/foundation.min.js': ['<%= foundation.js %>'],
-          'dist/docs/assets/js/modernizr.js': ['<%= vendor %>/modernizr/modernizr.js'],
-          'dist/docs/assets/js/all.js': ['<%= vendor %>/jquery/dist/jquery.js', '<%= vendor %>/lodash/dist/lodash.min.js','<%= vendor %>/fastclick/lib/fastclick.js', '<%= vendor %>/jquery-placeholder/jquery.placeholder.js', '<%= vendor %>/jquery.autocomplete/dist/jquery.autocomplete.js', '<%= foundation.js %>', 'doc/assets/js/docs.js']
         }
       },
       vendor: {
@@ -114,10 +110,7 @@ module.exports = function(grunt) {
     copy: {
       dist: {
         files: [
-          {expand:true, cwd: 'doc/assets/', src: ['**/*','!{scss,js}/**/*'], dest: 'dist/docs/assets/', filter:'isFile'},
           {expand:true, cwd: 'js/', src: ['foundation/*.js'], dest: 'dist/assets/js', filter: 'isFile'},
-          {src: '<%= vendor %>/jquery/jquery.min.js', dest: 'dist/docs/assets/js/jquery.js'},
-          {expand:true, cwd: 'scss/', src: '**/*.scss', dest: 'dist/assets/scss/', filter: 'isFile'},
           {src: 'bower.json', dest: 'dist/assets/'}
         ]
       }
@@ -131,6 +124,18 @@ module.exports = function(grunt) {
           port: 9001,
           base: 'dist/'
         }
+      }
+    },
+    
+    cssmin: {
+      target: {
+        files: [{
+          expand: true,
+          cwd: 'dist/assets/css',
+          src: ['*.css', '!*.min.css'],
+          dest: 'dist/assets/css',
+          ext: '.min.css'
+        }]
       }
     },
 
@@ -231,6 +236,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-contrib-connect');
   grunt.loadNpmTasks('grunt-contrib-copy');
+  grunt.loadNpmTasks('grunt-contrib-cssmin');
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-contrib-sass');
@@ -241,8 +247,8 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-string-replace');
 
   grunt.task.registerTask('watch_start', ['karma:dev_watch:start', 'watch']);
-  grunt.registerTask('build:assets', ['clean', 'sass', 'concat', 'uglify', 'copy', 'jst', 'string-replace']);
-  grunt.registerTask('build', ['build:assets', 'assemble']);
+  grunt.registerTask('build:assets', ['clean', 'sass', 'concat', 'uglify', 'copy', 'string-replace']);
+  grunt.registerTask('build', ['build:assets']);
   grunt.registerTask('travis', ['build', 'karma:continuous']);
   grunt.registerTask('develop', ['travis', 'watch_start']);
   grunt.registerTask('deploy', ['build', 'rsync:dist']);
