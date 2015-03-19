@@ -53,7 +53,6 @@ module.exports = function(grunt) {
         options: {
           loadPath: [__dirname + '/scss'],
           bundleExec: true
-          , style: 'compressed'
         },
         files: {
           'dist/assets/css/foundation.css': '<%= foundation.scss %>',
@@ -111,10 +110,17 @@ module.exports = function(grunt) {
       dist: {
         files: [
           {expand:true, cwd: 'js/', src: ['foundation/*.js'], dest: 'dist/assets/js', filter: 'isFile'},
-          {src: 'bower.json', dest: 'dist/assets/'}
+          {src: 'bower.json', dest: 'dist/assets/'},
+        ]
+      }
+      , site:  {
+        files: [
+          {expand:true, cwd: 'dist/assets/js/', src: ['foundation.min.js'], dest: '../js/', filter: 'isFile'},
+          {expand:true, cwd: 'dist/assets/css/', src: ['foundation.min.css'], dest: '../css/', filter: 'isFile'}
         ]
       }
     },
+
 
     clean: ['dist/'],
 
@@ -247,7 +253,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-string-replace');
 
   grunt.task.registerTask('watch_start', ['karma:dev_watch:start', 'watch']);
-  grunt.registerTask('build:assets', ['clean', 'sass', 'concat', 'uglify', 'copy', 'string-replace']);
+  grunt.registerTask('build:assets', ['clean', 'sass', 'cssmin', 'concat', 'uglify', 'copy:dist', 'string-replace', 'copy:site']);
   grunt.registerTask('build', ['build:assets']);
   grunt.registerTask('travis', ['build', 'karma:continuous']);
   grunt.registerTask('develop', ['travis', 'watch_start']);
